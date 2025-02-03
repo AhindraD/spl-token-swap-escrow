@@ -5,6 +5,8 @@ use anchor_spl::{
 };
 use crate::{OfferState, ANCHOR_DISCRIMINATOR, OFFER_SEED};
 
+use super::transfer_token;
+
 #[derive(Accounts)]
 #[instruction(id:u64)]
 pub struct MakeOffer<'info> {
@@ -14,7 +16,7 @@ pub struct MakeOffer<'info> {
     #[account(
         mint::token_program=token_program,
     )]
-    pub tokan_mint_a: InterfaceAccount<'info, Mint>,
+    pub token_mint_a: InterfaceAccount<'info, Mint>,
 
     #[account(
         mint::token_program=token_program,
@@ -23,7 +25,7 @@ pub struct MakeOffer<'info> {
 
     #[account(
     mut,
-    associated_token::mint=tokan_mint_a,
+    associated_token::mint=token_mint_a,
     associated_token::authority=maker,
     associated_token::token_program=token_program,   
     )]
@@ -45,7 +47,7 @@ pub struct MakeOffer<'info> {
     #[account(
         init,
         payer=maker,
-        associated_token::mint=tokan_mint_a,
+        associated_token::mint=token_mint_a,
         associated_token::authority=offer,
         associated_token::token_program=token_program,
     )]
@@ -56,8 +58,18 @@ pub struct MakeOffer<'info> {
     pub system_program:Program<'info,System>,
 }
 
-pub fn send_offered_tokens_to_vault(ctx: Context<MakeOffer>) -> Result<()> {
-    Ok(())
+pub fn send_offered_tokens_to_vault(
+    ctx: &Context<MakeOffer>,
+    token_a_offered_amount:u64,
+) -> Result<()> {
+    transfer_token(
+        &ctx.accounts.maker_token_account_a,
+        &ctx.accounts.vault,
+        &ctx.accounts.token_mint_a,
+        &ctx.accounts.maker,
+        &ctx.accounts.token_program,
+        &token_a_offered_amount
+    )
 }
 pub fn save_offer(ctx: Context<MakeOffer>) -> Result<()> {
     Ok(())

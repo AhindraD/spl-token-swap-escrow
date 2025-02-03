@@ -10,3 +10,4 @@ pub struct OfferState {
     pub token_b_wanted_amount: u64,
     pub offer_bump: u8,
 }
+//space=8+32+32+32+8+1

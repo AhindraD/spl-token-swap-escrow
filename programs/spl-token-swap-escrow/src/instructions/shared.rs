@@ -8,7 +8,7 @@ pub fn transfer_token<'info>(
     to: &InterfaceAccount<'info, TokenAccount>,
     mint: &InterfaceAccount<'info, Mint>,
     authority: &Signer<'info>,
-    token_program: Interface<'info, TokenInterface>,
+    token_program: &Interface<'info, TokenInterface>,
     amount: &u64,
 ) -> Result<()> {
     let cpi_program = token_program.to_account_info();
