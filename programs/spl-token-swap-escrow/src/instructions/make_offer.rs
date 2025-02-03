@@ -3,10 +3,10 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
-
-use crate::OfferState;
+use crate::{OfferState, ANCHOR_DISCRIMINATOR, OFFER_SEED};
 
 #[derive(Accounts)]
+#[instruction(id:u64)]
 pub struct MakeOffer<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
@@ -29,9 +29,31 @@ pub struct MakeOffer<'info> {
     )]
     pub maker_token_account_a:InterfaceAccount<'info,TokenAccount>,
 
+    #[account(
+        init,
+        payer=maker,
+        space=ANCHOR_DISCRIMINATOR + OfferState::INIT_SPACE,
+        seeds=[
+            OFFER_SEED.as_ref(),
+            maker.key().as_ref(),
+            &id.to_le_bytes()
+        ],
+        bump
+    )]
     pub offer:Account<'info,OfferState>,
 
+    #[account(
+        init,
+        payer=maker,
+        associated_token::mint=tokan_mint_a,
+        associated_token::authority=offer,
+        associated_token::token_program=token_program,
+    )]
+    pub vault:InterfaceAccount<'info,TokenAccount>,
+
     pub token_program: Interface<'info, TokenInterface>,
+    pub associated_token_program:Program<'info,AssociatedToken>,
+    pub system_program:Program<'info,System>,
 }
 
 pub fn send_offered_tokens_to_vault(ctx: Context<MakeOffer>) -> Result<()> {
