@@ -15,7 +15,8 @@ declare_id!("BPRjA2PwsP31iYAExYYHuqDWU6yy4LtH1vPz4bzRRMgJ");
 pub mod spl_token_swap_escrow {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn make_offer(ctx: &Context<MakeOffer>) -> Result<()> {
+        instructions::make_offer::send_offered_tokens_to_vault()?;
+        instructions::make_offer::save_offer()?
     }
 }

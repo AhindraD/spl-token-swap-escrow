@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 #[derive(InitSpace)]
-pub struct Offer {
+pub struct OfferState {
     pub id: u64,
     pub maker: Pubkey,
     pub token_mint_a: Pubkey,
