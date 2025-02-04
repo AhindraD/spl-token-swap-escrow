@@ -104,7 +104,7 @@ pub fn withdraw_and_close_vault(ctx: Context<TakeOffer>) -> Result<()> {
         cpi_ctx,
         ctx.accounts.vault.amount,
         ctx.accounts.token_mint_a.decimals,
-    );
+    )?; //(?) -> error-check may fail if not meeting all constraints
 
     //CLOSING OFFER
     let close_account_options = CloseAccount {
