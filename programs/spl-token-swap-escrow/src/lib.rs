@@ -23,4 +23,8 @@ pub mod spl_token_swap_escrow {
         instructions::make_offer::send_offered_tokens_to_vault(&ctx, token_a_offered_amount)?;
         instructions::make_offer::save_offer(ctx, id, token_b_wanted_amount)
     }
+
+    pub fn take_offer(ctx: Context<MakeOffer>) -> Result<()> {
+        Ok(())
+    }
 }

@@ -38,7 +38,7 @@ pub struct MakeOffer<'info> {
         seeds=[
             b"offer",
             maker.key().as_ref(),
-            &id.to_le_bytes()
+            id.to_le_bytes().as_ref()
         ],
         bump
     )]
