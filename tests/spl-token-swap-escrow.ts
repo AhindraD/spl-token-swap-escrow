@@ -42,7 +42,7 @@ describe("spl-token-swap-escrow", async () => {
 
   const connection = provider.connection;
 
-  const program = anchor.workspace.Swap as Program<SplTokenSwapEscrow>;
+  const program = anchor.workspace.SplTokenSwapEscrow as Program<SplTokenSwapEscrow>;
 
   // We're going to reuse these accounts across multiple tests
   const accounts: Record<string, PublicKey> = {
@@ -148,15 +148,19 @@ describe("spl-token-swap-escrow", async () => {
     // Check our vault contains the tokens offered
     const vaultBalanceResponse = await connection.getTokenAccountBalance(vault);
     const vaultBalance = new BN(vaultBalanceResponse.value.amount);
-    assert(vaultBalance.eq(tokenAOfferedAmount));
+    // console.log("vaultBalance", vaultBalance.toString());
+    // console.log("tokenAOfferedAmount", tokenAOfferedAmount.toString());
+    // assert(vaultBalance.eq(tokenAOfferedAmount));
+    assert.ok(vaultBalance.eq(tokenAOfferedAmount));
 
     // Check our Offer account contains the correct data
     const offerAccount = await program.account.offerState.fetch(offer);
+    // console.log("offerAccount", offerAccount);
 
-    assert(offerAccount.maker.equals(alice.publicKey));
-    assert(offerAccount.tokenMintA.equals(accounts.tokenMintA));
-    assert(offerAccount.tokenMintB.equals(accounts.tokenMintB));
-    assert(offerAccount.tokenBWantedAmount.eq(tokenBWantedAmount));
+    assert.ok(offerAccount.maker.equals(alice.publicKey));
+    assert.ok(offerAccount.tokenMintA.equals(accounts.tokenMintA));
+    assert.ok(offerAccount.tokenMintB.equals(accounts.tokenMintB));
+    assert.ok(offerAccount.tokenBWantedAmount.eq(tokenBWantedAmount));
   }).slow(ANCHOR_SLOW_TEST_THRESHOLD);
 
   it("Puts the tokens from the vault into Bob's account, and gives Alice Bob's tokens, when Bob takes an offer", async () => {
@@ -175,7 +179,7 @@ describe("spl-token-swap-escrow", async () => {
     const bobTokenAccountBalanceAfter = new BN(
       bobTokenAccountBalanceAfterResponse.value.amount
     );
-    assert(bobTokenAccountBalanceAfter.eq(tokenAOfferedAmount));
+    assert.ok(bobTokenAccountBalanceAfter.eq(tokenAOfferedAmount));
 
     // Check the wanted tokens are now in Alice's account
     // (note: there is no before balance as Alice didn't have any wanted tokens before the transaction)
@@ -184,6 +188,6 @@ describe("spl-token-swap-escrow", async () => {
     const aliceTokenAccountBalanceAfter = new BN(
       aliceTokenAccountBalanceAfterResponse.value.amount
     );
-    assert(aliceTokenAccountBalanceAfter.eq(tokenBWantedAmount));
+    assert.ok(aliceTokenAccountBalanceAfter.eq(tokenBWantedAmount));
   }).slow(ANCHOR_SLOW_TEST_THRESHOLD);
 });

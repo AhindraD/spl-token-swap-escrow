@@ -29,7 +29,7 @@ pub struct MakeOffer<'info> {
     associated_token::authority=maker,
     associated_token::token_program=token_program,   
     )]
-    pub maker_token_account_a:InterfaceAccount<'info,TokenAccount>,
+    pub maker_token_account_a:Box<InterfaceAccount<'info,TokenAccount>>,
 
     #[account(
         init,
