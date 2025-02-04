@@ -8,7 +8,7 @@ import {
 } from "@solana/spl-token";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { assert } from "chai";
-import type { Swap } from "../target/types/swap";
+import type { SplTokenSwapEscrow } from "../target/types/spl_token_swap_escrow";
 
 import {
   confirmTransaction,
@@ -42,7 +42,7 @@ describe("spl-token-swap-escrow", async () => {
 
   const connection = provider.connection;
 
-  const program = anchor.workspace.Swap as Program<Swap>;
+  const program = anchor.workspace.Swap as Program<SplTokenSwapEscrow>;
 
   // We're going to reuse these accounts across multiple tests
   const accounts: Record<string, PublicKey> = {
@@ -151,7 +151,7 @@ describe("spl-token-swap-escrow", async () => {
     assert(vaultBalance.eq(tokenAOfferedAmount));
 
     // Check our Offer account contains the correct data
-    const offerAccount = await program.account.offer.fetch(offer);
+    const offerAccount = await program.account.offerState.fetch(offer);
 
     assert(offerAccount.maker.equals(alice.publicKey));
     assert(offerAccount.tokenMintA.equals(accounts.tokenMintA));
