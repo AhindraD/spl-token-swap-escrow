@@ -2,7 +2,10 @@ use crate::OfferState;
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{Mint, TokenAccount, TokenInterface},
+    token_interface::{
+        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
+        TransferChecked,
+    },
 };
 
 use super::transfer_token;
@@ -66,4 +69,51 @@ pub struct TakeOffer<'info> {
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+}
+
+pub fn send_wanted_tokens_to_maker(ctx: &Context<TakeOffer>) -> Result<()> {
+    transfer_token(
+        &ctx.accounts.taker_token_account_b,
+        &ctx.accounts.maker_token_account_b,
+        &ctx.accounts.token_mint_b,
+        &ctx.accounts.taker,
+        &ctx.accounts.token_program,
+        &ctx.accounts.offer.token_b_wanted_amount,
+    )
+}
+
+pub fn withdraw_and_close_vault(ctx: Context<TakeOffer>) -> Result<()> {
+    let cpi_program = ctx.accounts.token_program.to_account_info();
+    let cpi_accounts_options = TransferChecked {
+        from: ctx.accounts.vault.to_account_info(),
+        to: ctx.accounts.taker_token_account_a.to_account_info(),
+        authority: ctx.accounts.offer.to_account_info(),
+        mint: ctx.accounts.token_mint_a.to_account_info(),
+    };
+
+    let seeds = &[
+        b"offer",
+        ctx.accounts.maker.key.as_ref(),
+        &ctx.accounts.offer.id.to_le_bytes()[..],
+        &[ctx.accounts.offer.offer_bump],
+    ];
+    let signer_seeds = &[&seeds[..]];
+
+    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts_options, signer_seeds);
+    transfer_checked(
+        cpi_ctx,
+        ctx.accounts.vault.amount,
+        ctx.accounts.token_mint_a.decimals,
+    );
+
+    //CLOSING OFFER
+    let close_account_options = CloseAccount {
+        account: ctx.accounts.vault.to_account_info(),
+        authority: ctx.accounts.offer.to_account_info(),
+        destination: ctx.accounts.maker.to_account_info(),
+    };
+    let cpi_program = ctx.accounts.token_program.to_account_info();
+    let close_ctx = CpiContext::new_with_signer(cpi_program, close_account_options, signer_seeds);
+
+    close_account(close_ctx)
 }
