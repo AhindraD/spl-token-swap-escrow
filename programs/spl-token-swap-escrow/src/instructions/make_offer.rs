@@ -3,7 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
-use crate::{OfferState, ANCHOR_DISCRIMINATOR, OFFER_SEED};
+use crate::{OfferState, ANCHOR_DISCRIMINATOR};
 
 use super::transfer_token;
 
@@ -36,7 +36,7 @@ pub struct MakeOffer<'info> {
         payer=maker,
         space=ANCHOR_DISCRIMINATOR + OfferState::INIT_SPACE,
         seeds=[
-            OFFER_SEED.as_ref(),
+            b"offer",
             maker.key().as_ref(),
             &id.to_le_bytes()
         ],
